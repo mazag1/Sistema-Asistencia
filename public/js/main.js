@@ -48,44 +48,22 @@ document.addEventListener("click", (event) => {
     }
 });
 
-
-const form = document.getElementById('registroForm'); // Usa el mismo ID de formulario para ambas entidades
-
-if (form) {
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const id = document.getElementById('id').value;
-        const entity = form.dataset.entity; // "estudiantes" o "profesores"
-
-        // Construimos el objeto dinámicamente
-        const formData = {};
-        form.querySelectorAll('input, select').forEach(input => {
-            if (input.name) {
-                formData[input.name] = input.value.trim();
-            }
-        });
-
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `/api/${entity}/${id}` : `/api/${entity}`;
-
-        try {
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert(result.message || `${entity} guardado correctamente.`);
-                window.location.href = `/${entity}`;
-            } else {
-                alert('Error: ' + (result.error || 'No se pudo procesar la solicitud.'));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+// Delegar evento a formularios de creación/edición
+async function apiRequest(url, method, data) {
+    const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
     });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    return result;
+}
+
+function mostrarMensaje(mensaje, tipo) {
+    const divMensaje = document.getElementById('mensaje');
+    divMensaje.textContent = mensaje;
+    divMensaje.className = `alert alert-${tipo}`;
+    divMensaje.classList.remove('d-none');
 }

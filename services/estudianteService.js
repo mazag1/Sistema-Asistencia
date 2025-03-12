@@ -25,31 +25,76 @@ const obtenerPorId = async (id) => {
         WHERE p.id = ?
     `, [id]);
 
-    return estudiantes.length > 0 ? estudiantes[0] : null;
+    if (estudiantes.length > 0) {
+        const estudiante = estudiantes[0];
+        // Formatear la fecha de nacimiento si no es null
+        if (estudiante.fecha_nacimiento) {
+            estudiante.fecha_nacimiento = new Date(estudiante.fecha_nacimiento).toISOString().split('T')[0];
+        }
+        return estudiante;
+    }
+    return null;
 };
 
-// Crear un nuevo estudiante (se inserta en persona y luego en estudiante)
+
+// Crear un nuevo estudiante
 const crear = async (data) => {
-    const { dni, nombre, apellido_paterno, apellido_materno, telefono, direccion, foto, email, fecha_nacimiento, grado, seccion } = data;
-    
+    console.log("Datos recibidos en estudianteService:", data);
+
+    const { dni, nombre, apellido_paterno, apellido_materno, telefono, direccion, email, fecha_nacimiento, grado, seccion, foto } = data;
+
     // Insertar en persona
-    const personaData = { dni, nombre, apellido_paterno, apellido_materno, telefono, direccion, foto, email, fecha_nacimiento, tipo: 'estudiante' };
-    const personaResult = await crudUtils.insert(TABLA_PERSONA, personaData);
-    
-    // Insertar en estudiante con el ID de persona
-    const estudianteData = { persona_id: personaResult.insertId, grado, seccion };
-    return await crudUtils.insert(TABLA_ESTUDIANTE, estudianteData);
+    const personaData = { 
+        dni, 
+        nombre, 
+        apellido_paterno, 
+        apellido_materno, 
+        telefono, 
+        direccion, 
+        email, 
+        fecha_nacimiento, 
+        tipo: 'estudiante',
+        foto: foto || null // Guarda la imagen solo si existe
+    };
+
+    try {
+        const personaResult = await crudUtils.insert(TABLA_PERSONA, personaData);
+        console.log("Resultado de inserción en persona:", personaResult);
+
+        // Insertar en estudiante con el ID de persona
+        const estudianteData = { persona_id: personaResult.insertId, grado, seccion };
+        const estudianteResult = await crudUtils.insert(TABLA_ESTUDIANTE, estudianteData);
+
+        console.log("Resultado de inserción en estudiante:", estudianteResult);
+
+        return estudianteResult;
+    } catch (error) {
+        console.error("Error en estudianteService.crear:", error);
+        throw error;
+    }
 };
 
 // Actualizar datos de un estudiante
 const actualizar = async (id, data) => {
-    const { grado, seccion, ...personaData } = data;
-    
-    // Actualizar en persona
-    await crudUtils.update(TABLA_PERSONA, personaData, { id });
+    console.log("Datos recibidos en actualizar:", data);
 
-    // Actualizar en estudiante
-    return await crudUtils.update(TABLA_ESTUDIANTE, { grado, seccion }, { persona_id: id });
+    const { grado, seccion, foto, ...personaData } = data;
+
+    try {
+        // Si hay una nueva foto, actualizarla
+        if (foto) {
+            personaData.foto = foto;
+        }
+
+        // Actualizar en persona
+        await crudUtils.update(TABLA_PERSONA, personaData, { id });
+
+        // Actualizar en estudiante
+        return await crudUtils.update(TABLA_ESTUDIANTE, { grado, seccion }, { persona_id: id });
+    } catch (error) {
+        console.error("Error en estudianteService.actualizar:", error);
+        throw error;
+    }
 };
 
 // Eliminar estudiante (primero de estudiante, luego de persona)

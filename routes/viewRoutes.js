@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
     });
 })
 
-router.use(estudianteViews);
+router.use('/estudiantes', estudianteViews);
 router.use(asistenciaViews);
 
 export default router;

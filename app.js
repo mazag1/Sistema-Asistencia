@@ -30,7 +30,7 @@ app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
 
 // Rutas de API (solo datos JSON)
-app.use('/api/', apiRouter);
+app.use('/api', apiRouter);
 
 // Rutas de vistas (EJS)
 app.use('/', viewRoutes);

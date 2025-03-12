@@ -9,16 +9,16 @@ const obtenerEstudiantes = async (req, res) => {
     }
 };
 
-const obtenerEstudiantePorId = async (req, res) => {
+const obtenerEstudiantePorId = async (id) => {
     try {
-        const { id } = req.params;
         const estudiante = await estudianteService.obtenerPorId(id);
         if (!estudiante) {
-            return res.status(404).json({ error: 'Estudiante no encontrado' });
+            return null;
         }
-        res.json(estudiante);
+        return estudiante;
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener el estudiante' });
+        console.error('Error al obtener estudiante:', error);
+        return null;
     }
 };
 
