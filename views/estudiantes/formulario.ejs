@@ -1,0 +1,26 @@
+<form id="registroForm" data-entity="<%= entity %>">
+    <input type="hidden" id="id" name="id" value="<%= item ? item.id : '' %>">
+
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required 
+            value="<%= item ? item.nombre : '' %>">
+    </div>
+
+    <div class="mb-3">
+        <label for="apellido" class="form-label">Apellido</label>
+        <input type="text" class="form-control" id="apellido" name="apellido" required 
+            value="<%= item ? item.apellido : '' %>">
+    </div>
+
+    <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="text" class="form-control" id="telefono" name="telefono" required 
+            value="<%= item ? item.telefono : '' %>">
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <%= item ? 'Actualizar' : 'Registrar' %>
+    </button>
+    <a href="/<%= entity %>" class="btn btn-secondary">Cancelar</a>
+</form>
